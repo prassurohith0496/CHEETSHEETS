@@ -1,0 +1,527 @@
+END TO END DOCKER COMMANDS:
+===========================
+Docker is a Container Engine:
+
+Docker Components: Docker Engine, Docker Hub , Docker Compose .
+#############################################################################################################
+
+1.Docker install:
+-----------------
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+yum -y install docker-ce
+systemctl start docker
+systemctl enable docker
+systemctl status docker
+
+docker info ------to check docker versions
+
+###############################################################################################################
+
+2.Docker Images:
+------------------
+docker run hello-world             ---Test Image download
+docker run -it centos /bin/bash    ---it runs container if no image it will download automatically
+
+Download:
+---------
+docker pull nginx                    
+docker run -it centos /bin/bash       
+docker images                         
+
+List:
+-----
+docker images       --list all images
+docker images -q    --list with image id
+
+Delete:
+-------
+docker rmi
+docker rmi ImageID
+sudo docker rmi imagename
+
+Verify about Image Details:
+---------------------------
+docker inspect jenkins 
+
+docker history:
+---------------
+docker history centos        ------------u can check all commands run with image
+
+###############################################################################################################
+
+3.Docker Containers:
+---------------------
+Running a Container:
+--------------------
+docker run –it centos /bin/bash    ---To run a container in an interactive mode
+
+Container Status:
+----------------
+docker ps            ---------lists all running containers 
+docker ps -a         ---------Running all Containers
+
+Process Running on container:
+-----------------------------
+docker top CID
+
+START/STOP Constainer:
+----------------------
+docker stop ContainerID 
+docker start ContainerID 
+
+STATS of a Container:
+---------------------
+docker stats ContainerID 
+
+Sttach a running Container:
+---------------------------
+docker attach ContainerID 
+
+PAUSE/UNPAUSE Container:
+------------------------
+docker pause ContainerID 
+docker unpause ContainerID 
+
+docker kill:
+------------
+kill all processes in a container
+
+docker kill 07b0b6f434fe 
+
+Delete Container:
+-----------------
+docker rm CID
+docker rm 9f215ed0b0d3 
+
+############################################################################################################################################################################################
+
+4.Container & Shells:
+----------------------
+docker run –it centos /bin/bash   -----add shell to containet and login to container
+docker container exec -it CID  /bin/bash -------login to container and exit--exit from container
+docker container exec -it CID  bash
+
+run Commands on Container with out login :
+-------------------------------------------
+docker container exec -it ContainerName  command
+docker container exec -it ContainerName  uname -a
+
+
+Docker Restart Policies:
+--------------------------
+no : do not automatically restart the container the default one
+on-failure :  Restart  the container if it exists due to error which manifests as a non-zero exit code
+unless-stopped : Restart the container unless it is explicitly stopped  or docker itself stopped or restarted
+always: : always restart the container if it stops.
+
+######################################################################################################################################################################################################
+
+5.Docker - File:  To Build Images
+-----------------
+Step 1 − Create a file called Docker File and edit it using vim. Please note that the name of the file has to be "Dockerfile" with "D" as capital.
+#vim Dockerfile
+
+Step 2 − Build your Docker File using the following instructions.
+#This is a sample Image 
+FROM ubuntu 
+MAINTAINER demousr@gmail.com 
+
+RUN apt-get update 
+RUN apt-get install –y nginx 
+CMD [“echo”,”Image created”] 
+
+Step 3 − Save the file. In the next chapter, we will discuss how to build the image.
+
+Docker build:
+-------------
+docker build  -t ImageName:TagName dir   for image
+docker build –t myimage:0.1  . 
+
+Verify:
+-------
+docker images
+
+#############################################################################################################################################################################################
+
+6.Docker - Public Repositories:
+--------------------------------
+Step 1 − Log into Docker Hub and create your repository. This is the repository where your image will be stored. 
+------   Go to https://hub.docker.com/ and log in with your credentials.
+
+Step 2 − Click the button "Create Repository" on the above screen and create a repository with the name demorep. 
+         Make sure that the visibility of the repository is public.
+         Once the repository is created, make a note of the pull command which is attached to the repository.
+		 The pull command which will be used in our repository is as follows −
+
+#  docker pull demousr/demorep
+
+Step 3 − Now go back to the Docker Host. Here we need to tag our myimage to the new repository created in Docker Hub. We can do this via the Docker tag command.
+
+Step 4 − Issue the Docker login command to login into the Docker Hub repository from the command prompt. The Docker login command will prompt 
+         you for the username and password to the Docker Hub repository.
+
+Step 5 − Once the image has been tagged, it’s now time to push the image to the Docker Hub repository. We can do this via the Docker push command. 
+         We will learn more about this command later in this chapter.
+
+docker tag
+----------
+docker tag ab0c1d3744dd demousr/demorep:1.0  ---to betteruse of images 
+
+docker push: to upload images to repo
+------------
+sudo docker push demousr/demorep:1.0 
+
+###############################################################################################################################################################################################################
+
+7.Docker - Managing Ports
+--------------------------
+Step 1 − First, you need to do a simple sign-up on Docker Hub.
+Step 2 − Once you have signed up, you will be logged into Docker Hub.
+Step 3 − Next, let’s browse and find the Jenkins image.
+Step 4 − If you scroll down on the same page, you can see the Docker pull command. 
+         This will be used to download the Jenkins Image onto the local Ubuntu server.
+Step 5 − Now go to the Ubuntu server and run the command 
+         
+		 #sudo docker pull jenkins 
+Step 6 − To understand what ports are exposed by the container, you should use the Docker inspect command to inspect the image.
+
+docker inspect:
+---------------
+This method allows one to return low-level information on the container or image.
+
+Syntax: docker inspect Container/Image 
+
+sudo docker inspect jenkins 
+-Check required ports 
+-run container along with container ports.
+
+sudo docker run -p 8080:8080 -p 50000:50000 jenkins 
+
+##################################################################################################################################################################################################
+8.Docker - Building a Web Server Docker File:
+-----------------------------------------------
+Step 1 − The first step is to build our Docker File. Let’s use vim and create a Docker File with the following information.
+
+FROM ubuntu 
+RUN apt-get update 
+RUN apt-get install –y apache2 
+RUN apt-get install –y apache2-utils 
+RUN apt-get clean 
+EXPOSE 80 CMD [“apache2ctl”, “-D”, “FOREGROUND”]
+
+Step 2 − Run the Docker build command to build the Docker file. It can be done using the following command −
+
+docker build –t=”mywebserver” . 
+
+Step 3 − Now that the web server file has been built, it’s now time to create a container from the image. We can do this with the Docker run command.
+
+docker run –d –p 80:80 mywebserver 
+
+Check app from your Browser.
+
+######################################################################################################################################################################################
+
+9.Docker - Storage:
+--------------------
+To find out drivers
+
+sudo docker info
+
+The following output shows that the main driver used is the aufs driver and that the root directory is stored in /var/lib/docker/aufs.
+
+Data Volumes:
+-------------
+In Docker, you have a separate volume that can shared across containers. These are known as data volumes.
+
+sudo docker inspect Jenkins > tmp.txt
+sudo docker run –d –v /home/demo:/var/jenkins_home –p 8080:8080 –p 50000:50000 jenkins 
+sudo docker run –d --volume-driver=flocker –v /home/demo:/var/jenkins_home –p 8080:8080 –p 50000:50000 jenkins --------To Change Storage driver of a volume of a container
+
+Creating a Volume:
+------------------
+A volume can be created beforehand using the docker command. Let’s learn more about this command.
+
+docker volume create –-name=volumename –-opt options
+
+sudo docker volume create –-name = demo –opt o = size = 100m 
+
+list volumes:
+--------------
+#docker volume ls 
+
+##########################################################################################################################################################################################################
+
+10:Docker - Networking:
+------------------------
+list docker networking:
+
+# docker network ls
+
+Beidge, Host, None -----network types or drivers
+
+Verify Network:
+---------------
+docker network inspect networkname 
+docker network inspect bridge 
+sudo docker network create –-driver bridge new_nw 
+sudo docker run –it –network=new_nw ubuntu:latest /bin/bash  ----run containers on ur own network
+sudo docker network inspect new_nw ---check container added or not 
+
+######################################################################################################################################################################################
+
+11.DOCKER LOGS:
+-------------
+Docker has logging mechanisms in place which can be used to debug issues.
+
+Daemon Logging
+
+At the daemon logging level, there are four levels of logging available −
+
+    Debug − It details all the possible information handled by the daemon process.
+
+    Info − It details all the errors + Information handled by the daemon process.
+
+    Errors − It details all the errors handled by the daemon process.
+
+    Fatal − It only details all the fatal errors handled by the daemon process.
+
+Step 1 − First, we need to stop the docker daemon process, if it is already running. It can be done using the following command −
+
+sudo service docker stop 
+
+Step 2 − Now we need to start the docker daemon process. But this time, we need to append the –l parameter to specify the logging option.
+         So let’s issue the following command when starting the docker daemon process.
+
+sudo dockerd –l debug &
+
+
+
+    dockerd is the executable for the docker daemon process.
+
+    The –l option is used to specify the logging level. In our case, we are putting this as debug
+
+    & is used to come back to the command prompt after the logging has been enabled.
+
+
+Container Logging:
+-----------------
+logging is also available at the container level. So in our example, let’s spin up an Ubuntu container first. We can do it by using the following command.
+
+sudo docker run –it ubuntu /bin/bash 
+sudo docker logs CID
+sudo docker logs 6bfb1271fcdd 
+
+#####################################################################################################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
